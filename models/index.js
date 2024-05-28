@@ -53,18 +53,34 @@ async function consultarUsuarios() {
 }
 
 // Función asincrónica para ingresar un usuario
-async function nuevoUsuario(email,nombre,password,anios,especialidad,foto) {
+async function nuevoUsuario(email,nombre,password,anios,especialidad,fotoPath) { //foto por fotoPath
   try {
       const result = await pool.query(
           `INSERT INTO skaters 
           (email,nombre,password,anos_experiencia,especialidad,foto,estado)
-          VALUES ('${email}','${nombre}','${password}','${anios}','${especialidad}','${foto}',false)
+          VALUES ('${email}','${nombre}','${password}','${anios}','${especialidad}','${fotoPath}',false)
           RETURNING *`
       )
   } catch (e) {
       console.log(e);
   }
 }
+
+//Opcion 2
+
+// async function nuevoUsuario(email, nombre, password, anios, especialidad, fotoPath) {
+//   const consulta = {
+//       text: "INSERT INTO usuarios(email, nombre, password, anios, especialidad, foto) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+//       values: [email, nombre, password, anios, especialidad, fotoPath]
+//   };
+//   try {
+//       const result = await pool.query(consulta);
+//       return result.rows[0];
+//   } catch (e) {
+//       console.log(e);
+//       throw e;
+//   }
+// }
 
 // Función asincrónica para cambiar el estado de un usuario
 async function setUsuarioStatus(id,estado) {

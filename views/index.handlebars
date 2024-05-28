@@ -80,7 +80,7 @@
         estado = '<td class="text-success font-weight-bold">Aprobado</td>'
       }
 
-      const ruta_foto = `/uploads/${c.foto}`
+      const ruta_foto = `public/assets/img/${c.foto}`
 
         tbody.innerHTML +=`
           <tr>
@@ -92,6 +92,19 @@
             ${estado}
           </tr>
         `
+//<tbody id="cuerpo">
+//  {{#each usuarios}}
+//  <tr>
+//    <td>{{@index}}</td>
+//    <td><img src="/{{this.foto}}" style="width:100px;"></td>
+//    <td>{{this.nombre}}</td>
+//    <td>{{this.anos_experiencia}}</td>
+//   <td>{{this.especialidad}}</td>
+//    <td><input type="checkbox" {{#if this.estado}} checked {{/if}} onclick="changeStatus({{this.id}}, this)"></td>
+//  </tr>
+//  {{/each}}
+//</tbody>
+
       })
     })
   }

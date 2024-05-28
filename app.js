@@ -6,7 +6,7 @@ const bodyParser = require("body-parser"); //es necesario...
 const expressFileUpload = require("express-fileupload");
 const path = require("path");
 const cors = require("cors"); // en caso de ..
-//const fs = require("fs");
+const fs = require("fs");
 //const axios = require("axios");
 const jwt = require("jsonwebtoken");
 const PORT = 3000; //se define el Puerto se puede omitir elevando
@@ -22,23 +22,8 @@ const {
     conseguirUsuario,
     setDatosUsuario,
     eliminarCuenta
-} = require('./models/index')
-
-
-// Llamado del server
-app.listen(PORT, () => {
-    console.log(`Voila...el Server está funcionando en el puerto ${PORT}`);
-});
-
-// Manejo de errores para visualizarlo en consola
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).send("Error interno del servidor");
-});
-
-// body-parser
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+} = require('./models/index');
+//const fileUpload = require("express-fileupload");
 
 //Middleware
 app.use(express.json()); //analizar solicitudes en json
@@ -55,6 +40,22 @@ app.use( expressFileUpload({
 })
 )
 
+// body-parser
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
+// Llamado del server
+app.listen(PORT, () => {
+    console.log(`Voila...el Server está funcionando en el puerto ${PORT}`);
+});
+
+// Manejo de errores para visualizarlo en consola
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send("Error interno del servidor");
+});
+
+
 
 //Ruta que apunta al html principal
 // app.get("/", (req, res) => {
@@ -67,7 +68,7 @@ app.get('/', (req, res) => {
         console.log("Se ha accedido a la ruta raíz: Index");
         res.render('index');
     } catch (e) {//e es la variable que contiene el error
-        console.error(`Error al renderizar la vista: ${e}`, error);
+        console.error(`Error  ${e}`, error);
         res.status(500).send("Error interno");
     }
 });
@@ -78,7 +79,7 @@ app.get("/registro", (req, res) => {
         console.log("Se ha accedido a la ruta raíz");
         res.render('Registro');
     } catch (e) {
-        console.error(`Error al renderizar la vista: ${e}`, error);
+        console.error(`Error ${e}`, error);
         res.status(500).send("Error interno");
     }
 });
@@ -190,31 +191,171 @@ app.post('/usuario', async (req,res) => {
 })
 
 // Ruta POST /subir_foto
-app.post('/registrar',async (req,res) => {
+// app.post('/registrar',async (req,res) => {
 
-    const { email,nombre,password,password_2,anios,especialidad } = req.body;
-    //const { foto } = req.files;
-    //const { name } = foto;
+//     const { email,nombre,password,password_2,anios,especialidad } = req.body;
+//     const { foto } = req.files;
+//     const { name } = foto;
 
-    if ( password !== password_2) { 
-        res.send('<script>alert("Las contraseñas no coinciden."); window.location.href = "/registro"; </script>');
-    // } else {
-    //     try {
-    //         const respuesta = await nuevoUsuario(email,nombre,password,anios,especialidad) //,name omitida que apunta a la foto
-    //         .then(() => {
-    //             foto.mv(`${__dirname}/public/uploads/${name}`,(err) => {
-    //                 res.send('<script>alert("Se ha registrado con éxito."); window.location.href = "/login"; </script>');
-    //             });
-    //         })
+//     if ( password !== password_2) { 
+//         res.send('<script>alert("Las contraseñas no coinciden."); window.location.href = "/registro"; </script>');
+//     } else {
+//         try {
+//             const respuesta = await nuevoUsuario(email,nombre,password,anios,especialidad) //,name omitida que apunta a la foto
+//             .then(() => {
+//                 foto.mv(`${__dirname}/public/uploads/${name}`,(err) => {
+//                     res.send('<script>alert("Se ha registrado con éxito."); window.location.href = "/login"; </script>');
+//                 });
+//             })
             
-    //     } catch (e) {
-    //         res.status(500).send({
-    //             error: `Algo salió mal... ${e}`,
-    //             code: 500
-    //         })
-    //     }
+//         } catch (e) {
+//             res.status(500).send({
+//                 error: `Algo salió mal... ${e}`,
+//                 code: 500
+//             })
+//         }
+//     }
+// })
+
+//Opcion 2
+// app.post('/registrar', async (req, res) => {
+//     const { email, nombre, password, password_2, anios, especialidad } = req.body;
+//     const { foto } = req.files || {}; // Asegurarse de que req.files no sea undefined
+
+//     console.log('Datos recibidos del formulario:', { email, nombre, password, password_2, anios, especialidad });
+//     console.log('Archivo recibido:', foto);
+
+//     if (password !== password_2) {
+//         return res.send('<script>alert("Las contraseñas no coinciden."); window.location.href = "/registro"; </script>');
+//     }
+
+//     try {
+//         const respuesta = await nuevoUsuario(email, nombre, password, anios, especialidad); // name omitida que apunta a la foto
+
+//         if (foto && foto.name) {
+//             const { name } = foto;
+//             const uploadPath = path.join(__dirname, 'public', 'assets', 'img', name);
+//             foto.mv(`${__dirname}./public/assets/img/${name}`, (err) => 
+//                 {
+//                 console.log('Archivo recibido', req.files);
+//                 if (err) {
+//                     return res.status(500).send({
+//                         error: `Error al subir la foto: ${err}`,
+//                         code: 500
+//                     });
+//                 }
+//                 return res.send('<script>alert("Se ha registrado con éxito."); window.location.href = "/login"; </script>');
+//             });
+//         } else {
+//             console.log('No se recibio ningún archivo')
+//             return res.send('<script>alert("Se ha registrado con éxito, pero no se subió ninguna foto."); window.location.href = "/login"; </script>');
+//         }
+//     } catch (e) {
+//         res.status(500).send({
+//             error: `Algo salió mal... ${e}`,
+//             code: 500
+//         });
+//     }
+// });
+
+//opcion 3: -> esta funciona
+// Ruta POST /registrar
+// app.post('/registrar', async (req, res) => {
+//     const { email, nombre, password, password_2, anios, especialidad } = req.body;
+//     const { foto } = req.files || {}; // Asegurarse de que req.files no sea undefined
+
+//     console.log('Datos recibidos del formulario:', { email, nombre, password, password_2, anios, especialidad });
+//     console.log('Archivo recibido:', foto);
+
+//     if (password !== password_2) {
+//         return res.send('<script>alert("Las contraseñas no coinciden."); window.location.href = "/registro"; </script>');
+//     }
+
+//     try {
+//         const respuesta = await nuevoUsuario(email, nombre, password, anios, especialidad); // name omitida que apunta a la foto
+
+//         if (foto && foto.name) {
+//             const { name } = foto;
+//             const uploadPath = path.join(__dirname,'public', 'assets', 'img', name);
+
+//             // Crear el directorio si no existe, esto es opcional en realidad
+//             const dir = path.dirname(uploadPath);
+//             if (!fs.existsSync(dir)) {
+//                 fs.mkdirSync(dir, { recursive: true });
+//             }
+
+//             foto.mv(uploadPath, (err) => {
+//                 if (err) {
+//                     console.error('Error al subir la foto:', err);
+//                     return res.status(500).send({
+//                         error: `Error al subir la foto: ${err}`,
+//                         code: 500
+//                     });
+//                 }
+//                 return res.send('<script>alert("Se ha registrado con éxito."); window.location.href = "/login"; </script>');
+//             });
+//         } else {
+//             return res.send('<script>alert("Se ha registrado con éxito, pero no se subió ninguna foto."); window.location.href = "/login"; </script>');
+//         }
+//     } catch (e) {
+//         console.error('Error en el servidor:', e);
+//         res.status(500).send({
+//             error: `Algo salió mal... ${e}`,
+//             code: 500
+//         });
+//     }
+// });
+
+//Opcion 4: test
+// Ruta POST /registrar
+app.post('/registrar', async (req, res) => {
+    const { email, nombre, password, password_2, anios, especialidad } = req.body;
+    const { foto } = req.files || {}; // Asegurarse de que req.files no sea undefined
+
+    console.log('Datos recibidos del formulario:', { email, nombre, password, password_2, anios, especialidad });
+    console.log('Archivo recibido:', foto);
+
+    if (password !== password_2) {
+        return res.send('<script>alert("Las contraseñas no coinciden."); window.location.href = "/registro"; </script>');
     }
-})
+
+    let fotoPath = '';
+    if (foto && foto.name) {
+        const { name } = foto;
+        fotoPath = `assets/img/${name}`;
+        const uploadPath = path.join(__dirname, 'public', fotoPath);
+
+        // Crear el directorio si no existe, esto es opcional en realidad
+        const dir = path.dirname(uploadPath);
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+
+        foto.mv(uploadPath, (err) => {
+            if (err) {
+                console.error('Error al subir la foto:', err);
+                return res.status(500).send({
+                    error: `Error al subir la foto: ${err}`,
+                    code: 500
+                });
+            }
+        });
+    } else {
+        return res.send('<script>alert("Se ha registrado con éxito, pero no se subió ninguna foto."); window.location.href = "/login"; </script>');
+    }
+
+    try {
+        const respuesta = await nuevoUsuario(email, nombre, password, anios, especialidad, fotoPath);
+        return res.send('<script>alert("Se ha registrado con éxito."); window.location.href = "/login"; </script>');
+    } catch (e) {
+        console.error('Error en el servidor:', e);
+        res.status(500).send({
+            error: `Algo salió mal... ${e}`,
+            code: 500
+        });
+    }
+});
+
 
 // Ruta PUT para cambiar estado de usuario
 app.put('/usuarios', async (req,res) => {
